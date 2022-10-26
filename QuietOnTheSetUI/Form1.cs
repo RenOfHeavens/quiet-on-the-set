@@ -145,9 +145,15 @@ namespace QuietOnTheSetUI
             }
             passwordTextBox.Text = string.Empty;
             confirmPasswordTextBox.Text = string.Empty;
-            if (_password.Length > 0) { lockButton.Enabled = false; }
             notifyIcon1.BalloonTipText = BalloonTipText;
             notifyIcon1.Text = BalloonTipText;
+            if (_password.Length > 0)
+            {
+                lockButton.Enabled = false;
+                checkBox1.Enabled = false;
+                checkBox2.Enabled = false;
+                checkBox3.Enabled = false;
+            }
             exitButton.Enabled = false;
             Icon = Resources.CircleCrossNote;
             notifyIcon1.Icon = Resources.CircleCrossNote;
@@ -156,6 +162,14 @@ namespace QuietOnTheSetUI
         internal void UnlockVolume()
         {
             _isLocked = false;
+
+            if (_password.Length > 0)
+            {
+                checkBox1.Enabled = true;
+                checkBox2.Enabled = true;
+                checkBox3.Enabled = true;
+            }
+
             lockButton.Text = "Lock";
             volumeTrackBar.Enabled = true;
             Properties.Settings.Default["IsLocked"] = false;
