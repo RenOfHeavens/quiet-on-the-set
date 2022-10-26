@@ -69,5 +69,25 @@ namespace QuietOnTheSetUI.Properties {
                 return ((System.Drawing.Icon)(obj));
             }
         }
+        
+        /// <summary>
+        ///   Looks up a localized resource of type System.Drawing.Icon similar to (Icon).
+        /// </summary>
+        internal static System.Drawing.Icon CircleCrossNote {
+            get {
+                object obj = ResourceManager.GetObject("CircleCrossNote", resourceCulture);
+                return ((System.Drawing.Icon)(obj));
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized resource of type System.Drawing.Icon similar to (Icon).
+        /// </summary>
+        internal static System.Drawing.Icon CircleNote {
+            get {
+                object obj = ResourceManager.GetObject("CircleNote", resourceCulture);
+                return ((System.Drawing.Icon)(obj));
+            }
+        }
     }
 }
