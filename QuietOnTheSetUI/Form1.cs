@@ -4,6 +4,7 @@ using QuietOnTheSetUI.Properties;
 using System;
 using System.IO;
 using System.Reflection;
+using System.Text.RegularExpressions;
 using System.Windows.Forms;
 
 namespace QuietOnTheSetUI
@@ -15,6 +16,7 @@ namespace QuietOnTheSetUI
         private bool _isLocked = false;
         private string _password;
         private int _maxVolume;
+        private readonly int _maxLimit = 100;
         private bool _exitAllowed = false;
         private readonly ContextMenu cm;
         private readonly MenuItem trayClose;
@@ -78,6 +80,37 @@ namespace QuietOnTheSetUI
             _isLocked = Convert.ToBoolean(Properties.Settings.Default["IsLocked"]);
             _password = Properties.Settings.Default["UnlockCode"].ToString();
             notifyIcon1.BalloonTipTitle = $"Quiet on the Set";
+
+            var cmdArgs = Environment.GetCommandLineArgs();
+
+            if (cmdArgs.Length > 0)
+            {
+                for (int i = 0; i < cmdArgs.Length; i++)
+                {
+                    if (Regex.Match(cmdArgs[i], "^[-/]?lock$", RegexOptions.IgnoreCase).Success)
+                    {
+                        _isLocked = true;
+                    }
+                    else if (Regex.Match(cmdArgs[i], "^[-/]?min$", RegexOptions.IgnoreCase).Success)
+                    {
+                        checkBox2.Checked = true;
+                    }
+                    else if (Regex.Match(cmdArgs[i], "^[-/]?quiet$", RegexOptions.IgnoreCase).Success)
+                    {
+                        checkBox3.Checked = true;
+                    }
+                    else
+                    {
+                        Match m = Regex.Match(cmdArgs[i], "^[-/]?(maxvol)=([0-9]{1,3})$", RegexOptions.IgnoreCase);
+
+                        if (m.Success)
+                        {
+                            _maxVolume = Math.Min(Convert.ToInt16(m.Groups[2].Value), _maxLimit);
+                        }
+                    }
+                }
+            }
+
             volumeTrackBar.Value = _maxVolume;
             currentVolumeLabel.Text = Convert.ToInt16(mmDevice.AudioEndpointVolume.MasterVolumeLevelScalar * 100).ToString();
 
