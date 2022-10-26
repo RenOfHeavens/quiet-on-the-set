@@ -1,5 +1,6 @@
 ﻿using Microsoft.Win32;
 using NAudio.CoreAudioApi;
+using QuietOnTheSetUI.Properties;
 using System;
 using System.IO;
 using System.Reflection;
@@ -9,8 +10,8 @@ namespace QuietOnTheSetUI
 {
     public partial class Form1 : Form
     {
-        MMDeviceEnumerator MMDE = new MMDeviceEnumerator();
-        MMDevice mmDevice;
+        readonly MMDeviceEnumerator MMDE = new MMDeviceEnumerator();
+        readonly MMDevice mmDevice;
         private bool _isLocked = false;
         private string _password;
         private int _maxVolume;
@@ -22,7 +23,7 @@ namespace QuietOnTheSetUI
             get
             {
                 var Params = base.CreateParams;
-                if (FormWindowState.Minimized == this.WindowState)
+                if (FormWindowState.Minimized == WindowState)
                 {
                     Params.ExStyle |= 0x80;
                 }
@@ -32,7 +33,7 @@ namespace QuietOnTheSetUI
 
         protected override void OnShown(EventArgs e)
         {
-            if (FormWindowState.Minimized == this.WindowState)
+            if (FormWindowState.Minimized == WindowState)
             {
                 base.OnShown(e);
                 Hide();
@@ -42,7 +43,6 @@ namespace QuietOnTheSetUI
         public Form1()
         {
             InitializeComponent();
-            //            Bitmap applicationIcon = QuietOnTheSetUI.Properties.Resources.appicon;
 
             try
             {
@@ -55,6 +55,18 @@ namespace QuietOnTheSetUI
                 checkBox2.Checked = false;
             }
 
+            Icon = QuietOnTheSetUI.Properties.Resources.appicon;
+            notifyIcon1.Icon = QuietOnTheSetUI.Properties.Resources.appicon;
+            mmDevice = MMDE.GetDefaultAudioEndpoint(DataFlow.Render, Role.Multimedia);
+            volumeTrackBar.ValueChanged += VolumeTrackBar_ValueChanged;
+            mmDevice.AudioEndpointVolume.OnVolumeNotification += AudioEndpointVolume_OnVolumeNotification;
+            _maxVolume = Convert.ToInt16(Properties.Settings.Default["MaxVolume"]);
+            _isLocked = Convert.ToBoolean(Properties.Settings.Default["IsLocked"]);
+            _password = Properties.Settings.Default["UnlockCode"].ToString();
+            notifyIcon1.BalloonTipTitle = $"Quiet on the Set";
+            volumeTrackBar.Value = _maxVolume;
+            currentVolumeLabel.Text = Convert.ToInt16(mmDevice.AudioEndpointVolume.MasterVolumeLevelScalar * 100).ToString();
+
             if (checkBox2.Checked)
             {
                 //  Hides the app completely
@@ -65,17 +77,6 @@ namespace QuietOnTheSetUI
                 Properties.Settings.Default.Save();
             }
 
-            this.Icon = QuietOnTheSetUI.Properties.Resources.appicon;
-            mmDevice = MMDE.GetDefaultAudioEndpoint(DataFlow.Render, Role.Multimedia);
-            notifyIcon1.Icon = QuietOnTheSetUI.Properties.Resources.appicon;
-            volumeTrackBar.ValueChanged += VolumeTrackBar_ValueChanged;
-            mmDevice.AudioEndpointVolume.OnVolumeNotification += AudioEndpointVolume_OnVolumeNotification;
-            _maxVolume = Convert.ToInt16(Properties.Settings.Default["MaxVolume"]);
-            volumeTrackBar.Value = _maxVolume;
-            _isLocked = Convert.ToBoolean(Properties.Settings.Default["IsLocked"]);
-            _password = Properties.Settings.Default["UnlockCode"].ToString();
-            currentVolumeLabel.Text = Convert.ToInt16(mmDevice.AudioEndpointVolume.MasterVolumeLevelScalar * 100).ToString();
-            notifyIcon1.BalloonTipTitle = $"Quiet on the Set";
             if (_isLocked)
             {
                 LockVolume(true);
@@ -85,8 +86,8 @@ namespace QuietOnTheSetUI
                 UnlockVolume();
             }
 
-            this.FormClosing += Form1_FormClosing;
-            this.Resize += Form1_Resize;
+            FormClosing += Form1_FormClosing;
+            Resize += Form1_Resize;
 
             UpdateFooter();
         }
@@ -96,20 +97,20 @@ namespace QuietOnTheSetUI
             var version = Assembly.GetExecutingAssembly().GetName().Version;
             DateTime buildDate = new FileInfo(Assembly.GetExecutingAssembly().Location).LastWriteTime;
 
-            footerLabel.Text = $"v{version} was built {buildDate.ToString("g")}";
+            footerLabel.Text = $"v{version} was built {buildDate:g}";
         }
 
         private void Form1_Resize(object sender, EventArgs e)
         {
-            if (FormWindowState.Minimized == this.WindowState)
+            if (FormWindowState.Minimized == WindowState)
             {
                 notifyIcon1.Visible = true;
                 notifyIcon1.ShowBalloonTip(500);
-                this.Hide();
+                Hide();
             }
-            else if (FormWindowState.Normal == this.WindowState)
+            else if (FormWindowState.Normal == WindowState)
             {
-                this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.FixedDialog;
+                FormBorderStyle = System.Windows.Forms.FormBorderStyle.FixedDialog;
                 notifyIcon1.Visible = false;
             }
         }
@@ -119,7 +120,7 @@ namespace QuietOnTheSetUI
             if (_exitAllowed == false)
             {
                 e.Cancel = true;
-                this.WindowState = FormWindowState.Minimized;
+                WindowState = FormWindowState.Minimized;
             }
         }
 
@@ -131,18 +132,18 @@ namespace QuietOnTheSetUI
             if (!initializing)
             {
                 _maxVolume = volumeTrackBar.Value;
+                _password = passwordTextBox.Text;
                 Properties.Settings.Default["MaxVolume"] = _maxVolume.ToString();
                 Properties.Settings.Default["IsLocked"] = true;
                 Properties.Settings.Default["UnlockCode"] = passwordTextBox.Text;
                 Properties.Settings.Default.Save();
             }
-            _password = passwordTextBox.Text;
             passwordTextBox.Text = string.Empty;
             confirmPasswordTextBox.Text = string.Empty;
-            notifyIcon1.BalloonTipText = _balloonTipText;
-            notifyIcon1.Text = _balloonTipText;
             if (_password.Length > 0) { lockButton.Enabled = false; }
             exitButton.Visible = false;
+            notifyIcon1.BalloonTipText = BalloonTipText;
+            notifyIcon1.Text = BalloonTipText;
             SetMaxVolume();
         }
         internal void UnlockVolume()
@@ -155,13 +156,13 @@ namespace QuietOnTheSetUI
             Properties.Settings.Default.Save();
             passwordTextBox.Text = string.Empty;
             confirmPasswordTextBox.Text = string.Empty;
-            notifyIcon1.BalloonTipText = _balloonTipText;
-            notifyIcon1.Text = _balloonTipText;
             exitButton.Visible = true;
+            notifyIcon1.BalloonTipText = BalloonTipText;
+            notifyIcon1.Text = BalloonTipText;
             _password = string.Empty;
         }
 
-        private string _balloonTipText
+        private string BalloonTipText
         {
             get
             {
@@ -202,13 +203,13 @@ namespace QuietOnTheSetUI
             maxVolumeLabel.Text = volumeTrackBar.Value.ToString();
         }
 
-        private void volumeTrackBar_Scroll(object sender, EventArgs e)
+        private void VolumeTrackBar_Scroll(object sender, EventArgs e)
         {
             var trackBar = (TrackBar)sender;
             maxVolumeLabel.Text = trackBar.Value.ToString();
         }
 
-        private void lockButton_Click(object sender, EventArgs e)
+        private void LockButton_Click(object sender, EventArgs e)
         {
             if (_isLocked)
             {
@@ -220,12 +221,12 @@ namespace QuietOnTheSetUI
             }
         }
 
-        private void passwordTextBox_TextChanged(object sender, EventArgs e)
+        private void PasswordTextBox_TextChanged(object sender, EventArgs e)
         {
             ValidatePasswords();
         }
 
-        private void confirmPasswordTextBox_TextChanged(object sender, EventArgs e)
+        private void ConfirmPasswordTextBox_TextChanged(object sender, EventArgs e)
         {
             ValidatePasswords();
         }
@@ -242,19 +243,19 @@ namespace QuietOnTheSetUI
             }
         }
 
-        private void showPasswordCheckbox_CheckedChanged(object sender, EventArgs e)
+        private void ShowPasswordCheckbox_CheckedChanged(object sender, EventArgs e)
         {
             var isChecked = ((CheckBox)sender).Checked;
             passwordTextBox.UseSystemPasswordChar = !isChecked;
             confirmPasswordTextBox.UseSystemPasswordChar = !isChecked;
         }
 
-        private void notifyIcon1_MouseDoubleClick(object sender, MouseEventArgs e)
+        private void NotifyIcon1_MouseDoubleClick(object sender, MouseEventArgs e)
         {
             // Show must be called before setting WindowState,
             // otherwise the window loses its size and position
-            this.Show();
-            this.WindowState = FormWindowState.Normal;
+            Show();
+            WindowState = FormWindowState.Normal;
             MaxmizedFromTray();
         }
 
@@ -263,7 +264,7 @@ namespace QuietOnTheSetUI
             notifyIcon1.Visible = false;
         }
 
-        private void exitButton_Click(object sender, EventArgs e)
+        private void ExitButton_Click(object sender, EventArgs e)
         {
             var response = MessageBox.Show("This will completely shut down the volume control so users can set the volume as loud as they want. Are you sure you want to exit?", "Warning", MessageBoxButtons.YesNo);
             if (response == DialogResult.Yes)
@@ -273,7 +274,7 @@ namespace QuietOnTheSetUI
             }
         }
 
-        private void checkBox1_CheckedChanged(object sender, EventArgs e)
+        private void CheckBox1_CheckedChanged(object sender, EventArgs e)
         {
             RegistryKey rk = Registry.CurrentUser.OpenSubKey
                 ("SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Run", true);
@@ -291,7 +292,7 @@ namespace QuietOnTheSetUI
             Properties.Settings.Default.Save();
         }
 
-        private void checkBox2_CheckedChanged(object sender, EventArgs e)
+        private void CheckBox2_CheckedChanged(object sender, EventArgs e)
         {
             Properties.Settings.Default["StartMinimized"] = checkBox2.Checked;
             Properties.Settings.Default.Save();
