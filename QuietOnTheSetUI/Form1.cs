@@ -149,6 +149,8 @@ namespace QuietOnTheSetUI
             notifyIcon1.BalloonTipText = BalloonTipText;
             notifyIcon1.Text = BalloonTipText;
             exitButton.Enabled = false;
+            Icon = Resources.CircleCrossNote;
+            notifyIcon1.Icon = Resources.CircleCrossNote;
             SetMaxVolume();
         }
         internal void UnlockVolume()
@@ -165,6 +167,8 @@ namespace QuietOnTheSetUI
             notifyIcon1.Text = BalloonTipText;
             exitButton.Enabled = true;
             _password = string.Empty;
+            Icon = Resources.CircleNote;
+            notifyIcon1.Icon = Resources.CircleNote;
         }
 
         private string BalloonTipText
