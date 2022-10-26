@@ -146,9 +146,9 @@ namespace QuietOnTheSetUI
             passwordTextBox.Text = string.Empty;
             confirmPasswordTextBox.Text = string.Empty;
             if (_password.Length > 0) { lockButton.Enabled = false; }
-            exitButton.Visible = false;
             notifyIcon1.BalloonTipText = BalloonTipText;
             notifyIcon1.Text = BalloonTipText;
+            exitButton.Enabled = false;
             SetMaxVolume();
         }
         internal void UnlockVolume()
@@ -161,9 +161,9 @@ namespace QuietOnTheSetUI
             Properties.Settings.Default.Save();
             passwordTextBox.Text = string.Empty;
             confirmPasswordTextBox.Text = string.Empty;
-            exitButton.Visible = true;
             notifyIcon1.BalloonTipText = BalloonTipText;
             notifyIcon1.Text = BalloonTipText;
+            exitButton.Enabled = true;
             _password = string.Empty;
         }
 
