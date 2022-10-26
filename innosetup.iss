@@ -2,9 +2,9 @@
 ; SEE THE DOCUMENTATION FOR DETAILS ON CREATING INNO SETUP SCRIPT FILES!
 
 #define MyAppName "Quiet on the Set"
-#define MyAppVersion "1.0"
-#define MyAppPublisher "Calvinware"
-#define MyAppURL "http://www.calvinware.com/"
+#define MyAppVersion "1.1.0.0"
+#define MyAppPublisher "RenOfHeavens"
+#define MyAppURL "https://github.com/RenOfHeavens/quiet-on-the-set"
 #define MyAppExeName "QuietOnTheSetUI.exe"
 #define BinFolder "QuietOnTheSetUI\bin\Release"
 
@@ -20,12 +20,14 @@ AppPublisher={#MyAppPublisher}
 AppPublisherURL={#MyAppURL}
 AppSupportURL={#MyAppURL}
 AppUpdatesURL={#MyAppURL}
-DefaultDirName={pf}\{#MyAppName}
+DefaultDirName={commonpf32}\{#MyAppName}
 DisableProgramGroupPage=yes
-OutputBaseFilename=setup
+OutputBaseFilename=setup-{#MyAppVersion}
 Compression=lzma
 SolidCompression=yes
 InfoBeforeFile=LICENSE
+UninstallDisplayIcon={app}\{#MyAppExeName}
+CloseApplications=force
 
 [Languages]
 Name: "english"; MessagesFile: "compiler:Default.isl"
@@ -37,6 +39,17 @@ Name: "desktopicon"; Description: "{cm:CreateDesktopIcon}"; GroupDescription: "{
 Source: {#BinFolder}\QuietOnTheSetUI.exe; DestDir: "{app}"; Flags: ignoreversion
 Source: {#BinFolder}\NAudio.dll; DestDir: "{app}"; Flags: ignoreversion
 ; NOTE: Don't use "Flags: ignoreversion" on any shared system files
+
+[UninstallDelete]
+Type: filesandordirs; Name: "{localappdata}\QuietOnTheSetUI"
+
+[Code]
+function InitializeUninstall(): Boolean;
+begin
+  if RegValueExists(HKEY_CURRENT_USER, 'SOFTWARE\Microsoft\Windows\CurrentVersion\Run', 'QuietOnTheSet') then
+    RegDeleteValue(HKEY_CURRENT_USER, 'SOFTWARE\Microsoft\Windows\CurrentVersion\Run', 'QuietOnTheSet');
+  Result:= True;
+end;
 
 [Icons]
 Name: "{commonprograms}\{#MyAppName}"; Filename: "{app}\{#MyAppExeName}"
