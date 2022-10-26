@@ -48,11 +48,13 @@ namespace QuietOnTheSetUI
             {
                 checkBox1.Checked = Convert.ToBoolean(Properties.Settings.Default["StartAutomatically"]);
                 checkBox2.Checked = Convert.ToBoolean(Properties.Settings.Default["StartMinimized"]);
+                checkBox3.Checked = Convert.ToBoolean(Properties.Settings.Default["HideNotifications"]);
             }
             catch (Exception)
             {
                 checkBox1.Checked = false;
                 checkBox2.Checked = false;
+                checkBox3.Checked = false;
             }
 
             Icon = QuietOnTheSetUI.Properties.Resources.appicon;
@@ -105,7 +107,10 @@ namespace QuietOnTheSetUI
             if (FormWindowState.Minimized == WindowState)
             {
                 notifyIcon1.Visible = true;
-                notifyIcon1.ShowBalloonTip(500);
+                if(!checkBox3.Checked)
+                {
+                    notifyIcon1.ShowBalloonTip(500);
+                }
                 Hide();
             }
             else if (FormWindowState.Normal == WindowState)
@@ -266,12 +271,16 @@ namespace QuietOnTheSetUI
 
         private void ExitButton_Click(object sender, EventArgs e)
         {
+            /*
             var response = MessageBox.Show("This will completely shut down the volume control so users can set the volume as loud as they want. Are you sure you want to exit?", "Warning", MessageBoxButtons.YesNo);
             if (response == DialogResult.Yes)
             {
                 _exitAllowed = true;
                 Application.Exit();
             }
+            */
+            _exitAllowed = true;
+            Application.Exit();
         }
 
         private void CheckBox1_CheckedChanged(object sender, EventArgs e)
@@ -295,6 +304,12 @@ namespace QuietOnTheSetUI
         private void CheckBox2_CheckedChanged(object sender, EventArgs e)
         {
             Properties.Settings.Default["StartMinimized"] = checkBox2.Checked;
+            Properties.Settings.Default.Save();
+        }
+
+        private void CheckBox3_CheckedChanged(object sender, EventArgs e)
+        {
+            Properties.Settings.Default["HideNotifications"] = checkBox3.Checked;
             Properties.Settings.Default.Save();
         }
     }

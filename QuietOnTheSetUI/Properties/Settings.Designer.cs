@@ -82,5 +82,17 @@ namespace QuietOnTheSetUI.Properties {
                 this["StartMinimized"] = value;
             }
         }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("False")]
+        public bool HideNotifications {
+            get {
+                return ((bool)(this["HideNotifications"]));
+            }
+            set {
+                this["HideNotifications"] = value;
+            }
+        }
     }
 }
