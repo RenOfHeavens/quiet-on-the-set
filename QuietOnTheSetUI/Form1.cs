@@ -16,6 +16,9 @@ namespace QuietOnTheSetUI
         private string _password;
         private int _maxVolume;
         private bool _exitAllowed = false;
+        private readonly ContextMenu cm;
+        private readonly MenuItem trayClose;
+        private readonly MenuItem trayToggleLock;
 
         // Removes the app from Alt+Tab window if minimized
         protected override CreateParams CreateParams
@@ -43,6 +46,15 @@ namespace QuietOnTheSetUI
         public Form1()
         {
             InitializeComponent();
+                    
+            cm = new ContextMenu();
+            MenuItem trayShow = new MenuItem("Show", new System.EventHandler(ShowTray));
+            trayClose = new MenuItem("Exit", new System.EventHandler(ExitTray));
+            trayToggleLock = new MenuItem("Lock", new System.EventHandler(TrayToggleLockTray));
+            cm.MenuItems.Add(0, trayShow);
+            cm.MenuItems.Add(1, trayToggleLock);
+            cm.MenuItems.Add(2, trayClose);
+            notifyIcon1.ContextMenu = cm;
 
             try
             {
@@ -93,6 +105,37 @@ namespace QuietOnTheSetUI
 
             UpdateFooter();
         }
+
+        protected void ShowTray(Object sender, System.EventArgs e)
+        {
+            Show();
+            WindowState = FormWindowState.Normal;
+            MaxmizedFromTray();
+
+        }
+        protected void TrayToggleLockTray(Object sender, System.EventArgs e)
+        {
+            if (_isLocked)
+            {
+                UnlockVolume();
+            }
+            else
+            {
+                LockVolume();
+
+                if (!checkBox3.Checked)
+                {
+                    notifyIcon1.ShowBalloonTip(500);
+                }
+
+            }
+        }
+        protected void ExitTray(Object sender, System.EventArgs e)
+        {
+            _exitAllowed = true;
+            Application.Exit();
+        }
+
 
         private void UpdateFooter()
         {
@@ -150,11 +193,14 @@ namespace QuietOnTheSetUI
             if (_password.Length > 0)
             {
                 lockButton.Enabled = false;
+                trayToggleLock.Enabled = false;
+                trayClose.Enabled = false;
                 checkBox1.Enabled = false;
                 checkBox2.Enabled = false;
                 checkBox3.Enabled = false;
             }
             exitButton.Enabled = false;
+            trayToggleLock.Text = "Unlock";
             Icon = Resources.CircleCrossNote;
             notifyIcon1.Icon = Resources.CircleCrossNote;
             SetMaxVolume();
@@ -165,6 +211,8 @@ namespace QuietOnTheSetUI
 
             if (_password.Length > 0)
             {
+                trayToggleLock.Enabled = true;
+                trayClose.Enabled = true;
                 checkBox1.Enabled = true;
                 checkBox2.Enabled = true;
                 checkBox3.Enabled = true;
@@ -181,6 +229,7 @@ namespace QuietOnTheSetUI
             notifyIcon1.Text = BalloonTipText;
             exitButton.Enabled = true;
             _password = string.Empty;
+            trayToggleLock.Text = "Lock";
             Icon = Resources.CircleNote;
             notifyIcon1.Icon = Resources.CircleNote;
         }
