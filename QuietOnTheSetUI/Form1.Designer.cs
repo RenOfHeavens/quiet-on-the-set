@@ -57,11 +57,11 @@
             // volumeTrackBar
             // 
             this.volumeTrackBar.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Left | System.Windows.Forms.AnchorStyles.Right)));
-            this.volumeTrackBar.Location = new System.Drawing.Point(0, 59);
+            this.volumeTrackBar.Location = new System.Drawing.Point(31, 59);
             this.volumeTrackBar.Margin = new System.Windows.Forms.Padding(6);
             this.volumeTrackBar.Maximum = 100;
             this.volumeTrackBar.Name = "volumeTrackBar";
-            this.volumeTrackBar.Size = new System.Drawing.Size(1406, 80);
+            this.volumeTrackBar.Size = new System.Drawing.Size(1320, 80);
             this.volumeTrackBar.TabIndex = 0;
             this.volumeTrackBar.Scroll += new System.EventHandler(this.VolumeTrackBar_Scroll);
             // 
